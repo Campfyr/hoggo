@@ -19,11 +19,12 @@ export class PartyManager {
         })[0];
     }
 
-    public createParty(owner: User): Party {
+    public createParty(owner: User, limit: number): Party {
         const id = this.createPartyId();
 
         const party: Party = {
             id,
+            limit,
             participants: [owner]
         };
 
@@ -34,10 +35,28 @@ export class PartyManager {
 
     public joinParty(partyId: string, participant: User): void {
         if (!this.hasParty(partyId)) {
-            throw 'Party not found'
+            throw 'Party not found';
         }
         const partyParticipants = this.getPartyParticipants(partyId);
         partyParticipants.push(participant);
+    }
+
+    public leaveParty(partyId: string, participant: User): void {
+        if (!this.hasParty(partyId)) {
+            throw 'Party not found';
+        }
+
+        if (!this.hasPartyParticipant(partyId, participant)) {
+            throw 'Participant is not part of party';
+        }
+
+        const party = this.getParty(partyId);
+        const joinedPartyParticipants = party.participants;
+        const filteredOutParticipants = joinedPartyParticipants.filter(
+            (joinedParticipant) => joinedParticipant.id !== participant.id
+        );
+
+        party.participants = filteredOutParticipants;
     }
 
     public hasParty(partyId: string): boolean {
