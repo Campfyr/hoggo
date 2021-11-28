@@ -7,19 +7,21 @@ export class PartyCreateCommand extends AbstractHoggoCommand {
     constructor(private readonly _partyManager: PartyManager) {
         super('create', 'This is the party create command');
     }
-    
+
     public async handleCommand(
         interaction: CommandInteraction<CacheType>
     ): Promise<void> {
         const commandAuthor = interaction.user;
         const party = this._partyManager.createParty(commandAuthor);
 
-        const {id: partyId, participants} = party as Party;
+        const { id: partyId, participants } = party as Party;
 
         const description = `A game party \`${partyId}\` was created\n`
-        const getFormattedMemberList = () => `${description} \`\`\` Member List:\n ${
-            participants.map((participant, index) => `${index + 1}: ${participant.username}\n`).join('')
-        } \`\`\``
+        const getFormattedMemberList = () =>
+            `${description} 
+            \`\`\`
+            Member List:\n ${participants.map((participant, index) => `${index + 1}: ${participant.username}\n`).join('')} 
+            \`\`\``
 
         const partyEmbed = new MessageEmbed()
             .setColor('#F0C14D')
@@ -49,12 +51,12 @@ export class PartyCreateCommand extends AbstractHoggoCommand {
 
             const isSamePartyId = partyIdParam === partyId;
             const memberAlreadyExists = this._partyManager.hasPartyParticipant(partyId, message.author);
-            
+
             if (memberAlreadyExists) {
                 interaction.followUp({
                     content: `${message.author.username} already joined Party \`${partyId}\``,
                 })
-            } else if(isSamePartyId) {
+            } else if (isSamePartyId) {
                 this._partyManager.joinParty(partyId, message.author);
                 partyEmbed.setDescription(getFormattedMemberList());
                 interaction.followUp({
@@ -70,9 +72,9 @@ export class PartyCreateCommand extends AbstractHoggoCommand {
         });
 
         collector.on('end', (collected) => {
-            interaction.followUp({ 
+            interaction.followUp({
                 content: `Party timed out`,
-                embeds: [partyEmbed] 
+                embeds: [partyEmbed]
             })
         });
 

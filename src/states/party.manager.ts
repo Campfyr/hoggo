@@ -16,7 +16,7 @@ export class PartyManager {
             wordsPerString: 2,
             separator: '-',
             maxLength: 4
-        });
+        })[0];
     }
 
     public createParty(owner: User): Party {
@@ -28,7 +28,7 @@ export class PartyManager {
         };
 
         this.parties.set(id, party);
-        
+
         return party;
     }
 
