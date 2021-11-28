@@ -2,7 +2,7 @@ import { Client, Intents } from 'discord.js';
 import { HoggoCommandManager } from './commands/hoggo-command.manager';
 import { token, clientId, guildId } from './config.json';
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 
 const commandManager = new HoggoCommandManager(token, clientId, guildId);
 commandManager.initialize();

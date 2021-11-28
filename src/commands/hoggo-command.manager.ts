@@ -8,9 +8,11 @@ import Collection from '@discordjs/collection';
 import { AbstractHoggoCommand } from './hoggo-command.interface';
 import { PingCommand } from './ping.command';
 import { PartyCommand } from './party.command';
+import { PartyManager } from '../states/party.manager';
 
 export class HoggoCommandManager {
     protected commands: Collection<string, AbstractHoggoCommand>;
+    protected partyManager: PartyManager;
 
     constructor(
         private readonly _token: string,
@@ -18,11 +20,12 @@ export class HoggoCommandManager {
         private readonly _guildId: string
     ) {
         this.commands = new Collection();
+        this.partyManager = new PartyManager();
     }
 
     public initialize(): void {
         this.registerCommand(new PingCommand());
-        this.registerCommand(new PartyCommand());
+        this.registerCommand(new PartyCommand(this.partyManager));
 
         this._registerCommandEndpoints();
     }

@@ -30,7 +30,7 @@ export abstract class AbstractHoggoCommand {
                 .execute(interaction);
         }
 
-        this.handleCommand(interaction);
+        await this.handleCommand(interaction);
     }
 
     public getSubCommands(): AbstractHoggoCommand[] {
