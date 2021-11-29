@@ -1,4 +1,4 @@
-import { AbstractHoggoCommand } from './hoggo-command.interface';
+import { AbstractCommand } from '../../../common/commands/interfaces/abstract.command';
 import {
     CacheType,
     CommandInteraction,
@@ -6,14 +6,14 @@ import {
     MessageEmbed,
     User
 } from 'discord.js';
-import { PartyManager } from '../states/party.manager';
-import { Party } from '../states/party.interface';
-import { EmojiDigitUtil } from '../utils/emoji-digit.util';
+import { PartyManagerService } from '../services/party-manager.service';
+import { Party } from '../interfaces/party.interface';
+import { EmojiDigitUtil } from '../../../common/utils/emoji-digit.util';
 
-export class PartyCreateCommand extends AbstractHoggoCommand {
+export class PartyCreateCommand extends AbstractCommand {
     protected emojiDigitUtil: EmojiDigitUtil;
 
-    constructor(private readonly _partyManager: PartyManager) {
+    constructor(private readonly _partyManager: PartyManagerService) {
         super('create', 'This is the party create command');
         this.emojiDigitUtil = new EmojiDigitUtil();
     }

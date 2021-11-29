@@ -1,9 +1,9 @@
 import Collection from '@discordjs/collection';
-import { Party } from './party.interface';
+import { Party } from '../interfaces/party.interface';
 import { User } from 'discord.js';
 import * as randomWords from 'random-words';
 
-export class PartyManager {
+export class PartyManagerService {
     protected parties: Collection<string, Party>;
 
     constructor() {
