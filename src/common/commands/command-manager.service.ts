@@ -5,14 +5,11 @@ import {
 } from 'discord-api-types/v9';
 import { REST } from '@discordjs/rest';
 import Collection from '@discordjs/collection';
-import { AbstractHoggoCommand } from './hoggo-command.interface';
-import { PingCommand } from './ping.command';
-import { PartyCommand } from './party.command';
-import { PartyManager } from '../states/party.manager';
+import { AbstractCommand } from './interfaces/abstract.command';
+import { IModule } from '../interfaces/module.interface';
 
-export class HoggoCommandManager {
-    protected commands: Collection<string, AbstractHoggoCommand>;
-    protected partyManager: PartyManager;
+export class CommandManagerService {
+    protected commands: Collection<string, AbstractCommand>;
 
     constructor(
         private readonly _token: string,
@@ -20,17 +17,27 @@ export class HoggoCommandManager {
         private readonly _guildId: string
     ) {
         this.commands = new Collection();
-        this.partyManager = new PartyManager();
     }
 
-    public initialize(): void {
-        this.registerCommand(new PingCommand());
-        this.registerCommand(new PartyCommand(this.partyManager));
+    public initialize(modules: IModule[]): void {
+        modules.forEach((module) => {
+            this.registerCommandsFromModule(module);
+        });
 
         this._registerCommandEndpoints();
     }
 
-    public registerCommand(command: AbstractHoggoCommand): void {
+    public registerCommandsFromModule(module: IModule) {
+        this.registerCommands(module.getCommands());
+    }
+
+    public registerCommands(commands: AbstractCommand[]): void {
+        commands.forEach((command) => {
+            this.registerCommand(command);
+        });
+    }
+
+    public registerCommand(command: AbstractCommand): void {
         this.commands.set(command.name, command);
     }
 
@@ -39,7 +46,7 @@ export class HoggoCommandManager {
     }
 
     private _convertToJSON(
-        command: AbstractHoggoCommand
+        command: AbstractCommand
     ): RESTPostAPIApplicationCommandsJSONBody {
         const { name, description } = command;
 
@@ -53,7 +60,7 @@ export class HoggoCommandManager {
     }
 
     private _handleSubCommands(
-        command: AbstractHoggoCommand,
+        command: AbstractCommand,
         commandBuilder: SlashCommandBuilder
     ) {
         if (command.hasSubCommands()) {

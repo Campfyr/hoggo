@@ -1,7 +1,7 @@
 import { CacheType, CommandInteraction } from 'discord.js';
-import { AbstractHoggoCommand } from './hoggo-command.interface';
+import { AbstractCommand } from '../../../common/commands/interfaces/abstract.command';
 
-export class PartyJoinCommand extends AbstractHoggoCommand {
+export class PartyJoinCommand extends AbstractCommand {
     constructor() {
         super('join', 'This is a party join command');
     }

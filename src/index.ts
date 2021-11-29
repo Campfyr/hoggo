@@ -1,11 +1,19 @@
 import { Client, Intents } from 'discord.js';
-import { HoggoCommandManager } from './commands/hoggo-command.manager';
+import { CommandManagerService } from './common/commands/command-manager.service';
 import { token, clientId, guildId } from './config.json';
+import { PartyModule } from './modules/party/party.module';
+import { PingModule } from './modules/ping/ping.module';
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+const client = new Client({
+    intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+    ]
+});
 
-const commandManager = new HoggoCommandManager(token, clientId, guildId);
-commandManager.initialize();
+const commandManager = new CommandManagerService(token, clientId, guildId);
+commandManager.initialize([new PingModule(), new PartyModule()]);
 
 client.once('ready', () => {
     console.log('Ready!');

@@ -1,13 +1,13 @@
 import Collection from '@discordjs/collection';
 import { CacheType, CommandInteraction } from 'discord.js';
 
-export abstract class AbstractHoggoCommand {
-    protected subCommandMap: Collection<string, AbstractHoggoCommand>;
+export abstract class AbstractCommand {
+    protected subCommandMap: Collection<string, AbstractCommand>;
 
     constructor(
         public name: string,
         public description: string,
-        subCommands?: AbstractHoggoCommand[]
+        subCommands?: AbstractCommand[]
     ) {
         this.subCommandMap = new Collection();
 
@@ -33,7 +33,7 @@ export abstract class AbstractHoggoCommand {
         await this.handleCommand(interaction);
     }
 
-    public getSubCommands(): AbstractHoggoCommand[] {
+    public getSubCommands(): AbstractCommand[] {
         return Array.from(this.subCommandMap.values());
     }
 

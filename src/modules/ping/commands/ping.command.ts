@@ -1,7 +1,7 @@
 import { CacheType, CommandInteraction } from 'discord.js';
-import { AbstractHoggoCommand } from './hoggo-command.interface';
+import { AbstractCommand } from '../../../common/commands/interfaces/abstract.command';
 
-export class PingCommand extends AbstractHoggoCommand {
+export class PingCommand extends AbstractCommand {
     constructor() {
         super('ping', 'This is a friendly ping command');
     }
