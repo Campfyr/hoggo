@@ -1,4 +1,3 @@
-import { AbstractCommand } from '../../../common/commands/interfaces/abstract.command';
 import {
     CacheType,
     CommandInteraction,
@@ -6,23 +5,39 @@ import {
     MessageEmbed,
     User
 } from 'discord.js';
-import { PartyManagerService } from '../services/party-manager.service';
-import { Party } from '../interfaces/party.interface';
-import { EmojiDigitUtil } from '../../../common/utils/emoji-digit.util';
+import { PartyManagerService } from '../../services/party-manager.service';
+import { Party } from '../../interfaces/party.interface';
+import { EmojiDigitUtil } from '../../../../common/utils/emoji-digit.util';
+import { AbstractSubCommand } from '../../../../common/commands/interfaces/abstract.subcommand';
 
-export class PartyCreateCommand extends AbstractCommand {
-    protected emojiDigitUtil: EmojiDigitUtil;
-
-    constructor(private readonly _partyManager: PartyManagerService) {
+export class PartyCreateSubCommand extends AbstractSubCommand {
+    constructor(
+        private readonly _partyManager: PartyManagerService,
+        private readonly _emojiDigitUtil: EmojiDigitUtil
+    ) {
         super('create', 'This is the party create command');
-        this.emojiDigitUtil = new EmojiDigitUtil();
+    }
+
+    public async onExecute(
+        interaction: CommandInteraction<CacheType>
+    ): Promise<void> {
+        const commandAuthor = interaction.user;
+        const party = this._partyManager.createParty(commandAuthor, -1);
+
+        const partyEmbed = this._createPartyEmbed(party);
+
+        this._handleMessageCollector(interaction, partyEmbed, party);
+
+        await interaction.reply({
+            embeds: [partyEmbed]
+        });
     }
 
     private _getFormattedMemberList(description: string, participants: User[]) {
         const formattedParticipants = participants
             .map(
                 (participant, index) =>
-                    `${this.emojiDigitUtil.convertDigitToEmoji(index + 1)} ${
+                    `${this._emojiDigitUtil.convertDigitToEmoji(index + 1)} ${
                         participant.username
                     }\n`
             )
@@ -45,21 +60,6 @@ export class PartyCreateCommand extends AbstractCommand {
             const isHuman = !message.author.bot;
             return isValidCommand && isHuman;
         };
-    }
-
-    public async handleCommand(
-        interaction: CommandInteraction<CacheType>
-    ): Promise<void> {
-        const commandAuthor = interaction.user;
-        const party = this._partyManager.createParty(commandAuthor, -1);
-
-        const partyEmbed = this._createPartyEmbed(party);
-
-        this._handleMessageCollector(interaction, partyEmbed, party);
-
-        await interaction.reply({
-            embeds: [partyEmbed]
-        });
     }
 
     private _createPartyEmbed({ id: partyId, participants }: Party) {

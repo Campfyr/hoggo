@@ -1,4 +1,3 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
 import {
     Routes,
     RESTPostAPIApplicationCommandsJSONBody
@@ -45,39 +44,8 @@ export class CommandManagerService {
         return this.commands.get(name);
     }
 
-    private _convertToJSON(
-        command: AbstractCommand
-    ): RESTPostAPIApplicationCommandsJSONBody {
-        const { name, description } = command;
-
-        const commandBuilder = new SlashCommandBuilder()
-            .setName(name)
-            .setDescription(description);
-
-        this._handleSubCommands(command, commandBuilder);
-
-        return commandBuilder.toJSON();
-    }
-
-    private _handleSubCommands(
-        command: AbstractCommand,
-        commandBuilder: SlashCommandBuilder
-    ) {
-        if (command.hasSubCommands()) {
-            const subCommands = command.getSubCommands();
-
-            subCommands.forEach((subCommand) => {
-                commandBuilder.addSubcommand((builderSubCommand) =>
-                    builderSubCommand
-                        .setName(subCommand.name)
-                        .setDescription(subCommand.description)
-                );
-            });
-        }
-    }
-
     public getAllCommandsJSON(): RESTPostAPIApplicationCommandsJSONBody[] {
-        return this.commands.map((command) => this._convertToJSON(command));
+        return this.commands.map((command) => command.toJSON());
     }
 
     private _registerCommandEndpoints(): void {

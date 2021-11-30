@@ -1,39 +1,57 @@
+import { SlashCommandBuilder } from '@discordjs/builders';
 import Collection from '@discordjs/collection';
+import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v9';
 import { CacheType, CommandInteraction } from 'discord.js';
+import { AbstractSubCommand } from './abstract.subcommand';
 
 export abstract class AbstractCommand {
-    protected subCommandMap: Collection<string, AbstractCommand>;
+    protected readonly subCommandMap: Collection<string, AbstractSubCommand>;
+    protected readonly commandBuilder: SlashCommandBuilder;
 
-    constructor(
-        public name: string,
-        public description: string,
-        subCommands?: AbstractCommand[]
-    ) {
+    constructor(public name: string, public description: string) {
         this.subCommandMap = new Collection();
-
-        if (!subCommands) {
-            return;
-        }
-
-        subCommands.forEach((subCommand) => {
-            this.subCommandMap.set(subCommand.name, subCommand);
-        });
+        this.commandBuilder = new SlashCommandBuilder()
+            .setName(name)
+            .setDescription(description);
     }
+
+    /**
+     * Fires whenever the command is ready for execution.
+     * @param interaction
+     */
+    public abstract onExecute(
+        interaction: CommandInteraction<CacheType>
+    ): Promise<void>;
 
     public async execute(
         interaction: CommandInteraction<CacheType>
     ): Promise<void> {
         if (this.hasSubCommands()) {
             const firedSubCommandName = interaction.options.getSubcommand();
-            return this.subCommandMap
-                .get(firedSubCommandName)
-                .execute(interaction);
+            const firedSubCommand = this.getSubCommand(firedSubCommandName);
+            return firedSubCommand.onExecute(interaction);
         }
 
-        await this.handleCommand(interaction);
+        await this.onExecute(interaction);
     }
 
-    public getSubCommands(): AbstractCommand[] {
+    public addSubCommand(subCommand: AbstractSubCommand): AbstractCommand {
+        this.subCommandMap.set(subCommand.name, subCommand);
+        return this;
+    }
+
+    public addSubCommands(subCommands: AbstractSubCommand[]): AbstractCommand {
+        subCommands.forEach((subCommand) => {
+            this.addSubCommand(subCommand);
+        });
+
+        return this;
+    }
+
+    public getSubCommand(name: string): AbstractSubCommand {
+        return this.subCommandMap.get(name);
+    }
+    public getSubCommands(): AbstractSubCommand[] {
         return Array.from(this.subCommandMap.values());
     }
 
@@ -41,7 +59,17 @@ export abstract class AbstractCommand {
         return this.subCommandMap.size > 0;
     }
 
-    abstract handleCommand(
-        interaction: CommandInteraction<CacheType>
-    ): Promise<void>;
+    public toJSON(): RESTPostAPIApplicationCommandsJSONBody {
+        const subCommands = this.getSubCommands();
+
+        subCommands.forEach((subCommand) => {
+            this.commandBuilder.addSubcommand(subCommand.getCommandBuilder());
+        });
+
+        return this.commandBuilder.toJSON();
+    }
+
+    public getCommandBuilder(): SlashCommandBuilder {
+        return this.commandBuilder;
+    }
 }
