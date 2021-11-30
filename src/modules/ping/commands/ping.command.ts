@@ -6,7 +6,7 @@ export class PingCommand extends AbstractCommand {
         super('ping', 'This is a friendly ping command');
     }
 
-    public async handleCommand(
+    public async onExecute(
         interaction: CommandInteraction<CacheType>
     ): Promise<void> {
         return interaction.reply(
